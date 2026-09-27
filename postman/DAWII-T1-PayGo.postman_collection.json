@@ -1,0 +1,110 @@
+{
+  "info": {
+    "name": "DAWII T1 - PayGo Peru (Grupo 4)",
+    "description": "Pregunta 1: ms-tarjetas (8084) + ms-recargas (8085) con OpenFeign.\nPregunta 2: ms-recargas publica en RabbitMQ (Mesta_Queue) y ms-riesgo (8086) consume y registra en la tabla analisis.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "tarjetasUrl", "value": "http://localhost:8084" },
+    { "key": "recargasUrl", "value": "http://localhost:8085" },
+    { "key": "riesgoUrl", "value": "http://localhost:8086" },
+    { "key": "idTarjeta", "value": "1" }
+  ],
+  "item": [
+    {
+      "name": "Pregunta 1 - ms-tarjetas (proveedor)",
+      "item": [
+        {
+          "name": "Registrar tarjeta",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "pm.collectionVariables.set('idTarjeta', pm.response.json().idTarjeta);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nomTitular\": \"Jennyfer Mesta\",\n  \"saldoAsignado\": 1500.00,\n  \"saldoDisponible\": 1000.00\n}"
+            },
+            "url": "{{tarjetasUrl}}/tarjetas"
+          }
+        },
+        {
+          "name": "Listar tarjetas",
+          "request": { "method": "GET", "url": "{{tarjetasUrl}}/tarjetas" }
+        },
+        {
+          "name": "Consultar tarjeta por id",
+          "request": { "method": "GET", "url": "{{tarjetasUrl}}/tarjetas/{{idTarjeta}}" }
+        },
+        {
+          "name": "Consultar tarjeta inexistente (404)",
+          "request": { "method": "GET", "url": "{{tarjetasUrl}}/tarjetas/999" }
+        }
+      ]
+    },
+    {
+      "name": "Pregunta 1 - ms-recargas (consumidor Feign)",
+      "item": [
+        {
+          "name": "Registrar recarga - tarjeta existe (APROBADA)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idTarjeta\": 1,\n  \"montoRecarga\": 500.00\n}"
+            },
+            "url": "{{recargasUrl}}/recargas"
+          }
+        },
+        {
+          "name": "Registrar recarga - supera 70% (OBSERVADA)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idTarjeta\": 2,\n  \"montoRecarga\": 180.00\n}"
+            },
+            "url": "{{recargasUrl}}/recargas"
+          }
+        },
+        {
+          "name": "Registrar recarga - tarjeta NO existe (404)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idTarjeta\": 999,\n  \"montoRecarga\": 50.00\n}"
+            },
+            "url": "{{recargasUrl}}/recargas"
+          }
+        },
+        {
+          "name": "Listar recargas",
+          "request": { "method": "GET", "url": "{{recargasUrl}}/recargas" }
+        }
+      ]
+    },
+    {
+      "name": "Pregunta 2 - ms-riesgo (consumidor RabbitMQ)",
+      "item": [
+        {
+          "name": "Listar analisis",
+          "request": { "method": "GET", "url": "{{riesgoUrl}}/analisis" }
+        }
+      ]
+    }
+  ]
+}
