@@ -4,7 +4,10 @@ Evaluación de Laboratorio T1 – **4697 Desarrollo de Aplicaciones Web II** (CI
 
 **Grupo 4**
 - Jennyfer Mesta Wong
-- _(agregar integrantes)_
+- MARCELO MANRIQUE BELLIDO
+- DANIEL JOSE MENDIVIL CHIPANA
+- FRANKLIN MOLINA JIMENEZ
+- RAFAEL ANDERSON PONTE GAITAN
 
 La fintech **PAYGO PERÚ** emite y gestiona tarjetas prepago. Este repositorio implementa la comunicación entre las áreas de **Tarjetas**, **Recargas** y **Riesgo** con microservicios Spring Boot.
 
